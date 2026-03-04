@@ -7,6 +7,14 @@ body {
   height: 100vh;
 }
 
+.logoimg{
+  width: 80%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  padding-left: 35px;
+}
+
 .container {
   background: white;
   padding: 30px;
@@ -62,7 +70,7 @@ button:disabled {
 .choices {
   display: none;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px;
   margin: auto;
   /* padding: 10px 0px; */
   padding-bottom: 10px;
@@ -80,8 +88,20 @@ button:disabled {
   width: fit-content;
 
 }
-.mailbutton:hover{
+.mailbutton:not(:disabled):hover{
   background-color: rgb(81, 207, 169);
   color: white;
   border: none;
+}
+
+.suggestion-wrapper {
+  display: flex;
+  align-items: center;  /* vertically center error with button */
+  gap: 8px;             /* space between button and error */
+  margin-bottom: 5px;   /* optional spacing between suggestions */
+}
+
+.button-error {
+  color: red;
+  font-size: 12px;
 }

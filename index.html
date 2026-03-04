@@ -9,10 +9,11 @@
 <body>
 
 <div class="container">
+  <img src="Logos and slogan-03 5 (1).png" class="logoimg" alt="logo">
   <h2>Square Mail Registeration</h2>
   <form id="onboardingForm">
 
-    <input type="text" id="code" placeholder="Employee Code" required>
+    <input type="text" id="code" placeholder="Candidate ID" required>
     <div class="error" id="codeError"></div>
 
     <input type="text" id="firstName" placeholder="First Name" required>
@@ -23,12 +24,19 @@
     <div class="error" id="emailError"></div>
 
     <div class="choices">
-      <button type="button" class="mailbutton" id="fl"></button>
-      <button type="button" class="mailbutton" id="fml"></button>
+      <div class="suggestion-wrapper">
+        <button type="button" class="mailbutton" id="fl"></button>
+        <span class="button-error" id="flError"></span>
+      </div>
+
+      <div class="suggestion-wrapper">
+        <button type="button" class="mailbutton" id="fml"></button>
+        <span class="button-error" id="fmlError"></span>
+      </div>
     </div>
 
-    <input type="text" id="phone" placeholder="Phone (01XXXXXXXXX)" required>
-    <div class="error" id="phoneError"></div>
+    <!-- <input type="text" id="phone" placeholder="Phone (01XXXXXXXXX)" required>
+    <div class="error" id="phoneError"></div> -->
 
 
     <button type="submit" id="submitBtn" disabled style="margin-left: 10px;">Submit</button>

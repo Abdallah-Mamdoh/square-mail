@@ -1,195 +1,268 @@
-const code = document.getElementById("code");
+// ================= ELEMENTS =================
 const firstName = document.getElementById("firstName");
 const middleName = document.getElementById("middleName");
 const lastName = document.getElementById("lastName");
 const emailInput = document.getElementById("email");
-const phoneInput = document.getElementById("phone");
 const submitBtn = document.getElementById("submitBtn");
 
 const emailError = document.getElementById("emailError");
-const phoneError = document.getElementById("phoneError");
-const codeError = document.getElementById("codeError");
 
+const firstbutton = document.getElementById("fl");
+const secondbutton = document.getElementById("fml");
 
-const firstbutton = document.getElementById("fl"); 
-const secondbutton = document.getElementById("fml"); 
+const choicesContainer = document.querySelector(".choices");
 
+// Create error spans beside suggestion buttons
+let flError = document.createElement("span");
+flError.classList.add("button-error");
+firstbutton.insertAdjacentElement("afterend", flError);
+
+let fmlError = document.createElement("span");
+fmlError.classList.add("button-error");
+secondbutton.insertAdjacentElement("afterend", fmlError);
 
 let emailAvailable = false;
 
-emailInput.addEventListener("focus", function() {
-  document.querySelector(".choices").style.display = "flex"
-  if (firstName.value && lastName.value){
-    // default email without dash
-    firstbutton.textContent = `${firstName.value.toLowerCase()}.${lastName.value.toLowerCase()}@square.com.eg`;
-    
-    // middle initial email
-    secondbutton.textContent = middleName.value 
-      ? `${firstName.value.toLowerCase()}.${middleName.value.charAt(0).toLowerCase()}.${lastName.value.toLowerCase()}@square.com.eg`
-      : firstbutton.textContent;
+// ================= EMAIL SUGGESTION FUNCTION =================
+function generateEmailSuggestions() {
+  if (!firstName.value || !lastName.value) return;
 
-    // Add dash for "Al" or "El" names longer than 5 chars
-    const prefix = lastName.value.substring(0,2).toLowerCase();
-    if ((prefix === "al" || prefix === "el") && lastName.value.length > 5){
-      const rest = lastName.value.substring(2).toLowerCase();
-      firstbutton.textContent = `${firstName.value.toLowerCase()}.${prefix}-${rest}@square.com.eg`;
-      if(middleName.value){
-        secondbutton.textContent = `${firstName.value.toLowerCase()}.${middleName.value.charAt(0).toLowerCase()}.${prefix}-${rest}@square.com.eg`;
-      } else {
-        secondbutton.textContent = firstbutton.textContent;
-      }
-    }
+  // Reset buttons
+  firstbutton.disabled = false;
+  secondbutton.disabled = false;
+  flError.textContent = "";
+  fmlError.textContent = "";
 
-  } else {
-    emailError.textContent = "Please fill your full name first";
-    emailInput.classList.add("invalid");
-    emailInput.classList.remove("valid");
+  const first = firstName.value.toLowerCase();
+  const middle = middleName.value.toLowerCase();
+  const last = lastName.value.toLowerCase();
+
+  let email1 = `${first}.${last}@square.com.eg`;
+  let email2 = middle ? `${first}.${middle.charAt(0)}.${last}@square.com.eg` : email1;
+
+  // Al / El dash logic
+  const prefix = last.substring(0, 2);
+  if ((prefix === "al" || prefix === "el") && last.length > 5) {
+    const rest = last.substring(2);
+    email1 = `${first}.${prefix}-${rest}@square.com.eg`;
+    email2 = middle ? `${first}.${middle.charAt(0)}.${prefix}-${rest}@square.com.eg` : email1;
   }
-})
 
-firstbutton.addEventListener("click", function() {
-  emailInput.value = this.textContent
-})
+  firstbutton.textContent = email1;
+  secondbutton.textContent = email2;
 
-secondbutton.addEventListener("click", function() {
-  emailInput.value = this.textContent
-})
-// Validate Employee Code
-function validateCode() {
-  const codeVal = code.value.trim();
-  if (codeVal.length != 9) {
-    codeError.textContent = "Enter a Valid Employee Code";
-    code.classList.add("invalid");
-    code.classList.remove("valid");
-    return false;
-  } else {
-    codeError.textContent = "";
-    code.classList.add("valid");
-    code.classList.remove("invalid");
-    return true;
-  }
+  choicesContainer.style.display = "flex";
+
+  // Check each suggestion separately (do not affect main email)
+  checkSuggestionEmail(email1, firstbutton, flError);
+  checkSuggestionEmail(email2, secondbutton, fmlError);
 }
 
-// Validate email format
+// ================= CHECK SUGGESTION EMAIL =================
+function checkSuggestionEmail(email, btn, errorSpan) {
+  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim() })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.exists) {
+        errorSpan.textContent = "Email already exists";
+        btn.disabled = true;
+      } else {
+        errorSpan.textContent = "";
+        btn.disabled = false;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      errorSpan.textContent = "Error checking email";
+      btn.disabled = true;
+    });
+}
+
+// ================= EMAIL BUTTON CLICK =================
+firstbutton.addEventListener("click", function () {
+  emailInput.value = this.textContent;
+  validateEmailFormat();
+  checkEmailAndSetError(this.textContent);
+});
+
+secondbutton.addEventListener("click", function () {
+  emailInput.value = this.textContent;
+  validateEmailFormat();
+  checkEmailAndSetError(this.textContent);
+});
+
+// ================= EMAIL VALIDATION =================
 function validateEmailFormat() {
   const emailVal = emailInput.value.trim();
+  const first = firstName.value.trim();
+  const last = lastName.value.trim();
+
+  if (!first || !last) {
+    setEmailInvalid("First and last name required");
+    return false;
+  }
+
   if (!emailVal.endsWith("@square.com.eg")) {
-    emailError.textContent = "Email must end with @square.com.eg";
-    emailInput.classList.add("invalid");
-    emailInput.classList.remove("valid");
-    emailAvailable = false;
+    setEmailInvalid("Email must end with @square.com.eg");
     return false;
-  } else {
-    emailError.textContent = "";
-    emailInput.classList.add("valid");
-    emailInput.classList.remove("invalid");
-    return true;
   }
+
+  const username = emailVal.split("@")[0];
+
+  if (!username.includes(first.toLowerCase()) || !username.includes(last.toLowerCase())) {
+    setEmailInvalid("Email must contain first and last name in lower case");
+    return false;
+  }
+
+  if (/\d/.test(username)) {
+    setEmailInvalid("Numbers are not allowed");
+    return false;
+  }
+
+  if (!/^[a-z.-]+$/.test(username)) {
+    setEmailInvalid("Only lowercase letters, dot (.) and dash (-) allowed");
+    return false;
+  }
+
+  if (emailVal !== emailVal.toLowerCase()) {
+    setEmailInvalid("Email must be lowercase");
+    return false;
+  }
+
+  setEmailValid();
+  return true;
 }
 
-// Validate phone: 11 digits, start with 01
-function validatePhone() {
-  const phoneVal = phoneInput.value.trim();
-  if (!/^01\d{9}$/.test(phoneVal)) {
-    phoneError.textContent = "Phone must be 11 digits and start with 01";
-    phoneInput.classList.add("invalid");
-    phoneInput.classList.remove("valid");
-    return false;
-  } else {
-    phoneError.textContent = "";
-    phoneInput.classList.add("valid");
-    phoneInput.classList.remove("invalid");
-    return true;
-  }
+// ================= EMAIL VALID / INVALID UI =================
+function setEmailInvalid(message) {
+  emailError.textContent = message;
+  emailInput.classList.add("invalid");
+  emailInput.classList.remove("valid");
+  emailAvailable = false;
 }
 
-// Check email existence in SharePoint via Power Automate
-function checkEmailExistence() {
+function setEmailValid() {
+  emailError.textContent = "";
+  emailInput.classList.add("valid");
+  emailInput.classList.remove("invalid");
+  emailAvailable = true;
+}
+
+// ================= EMAIL INPUT EVENTS =================
+emailInput.addEventListener("input", () => {
   const emailVal = emailInput.value.trim();
+
+  // First, validate format
   if (!validateEmailFormat()) {
     emailAvailable = false;
+    validateForm();
     return;
   }
 
-  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", { // Replace with your Power Automate Flow URL
+  // Then, check existence
+  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: emailVal })
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.exists) {
-      emailError.textContent = "Email already exists";
-      emailInput.classList.add("invalid");
-      emailInput.classList.remove("valid");
+    .then(res => res.json())
+    .then(data => {
+      if (data.exists) {
+        setEmailInvalid("Email already exists");
+        emailAvailable = false;
+      } else {
+        setEmailValid();
+        emailAvailable = true;
+      }
+      validateForm(); // Disable/enable submit button
+    })
+    .catch(err => {
+      console.error(err);
+      setEmailInvalid("Error checking email");
       emailAvailable = false;
-    } else {
-      emailError.textContent = "";
-      emailInput.classList.add("valid");
-      emailInput.classList.remove("invalid");
-      emailAvailable = true;
-    }
-    validateForm();
+      validateForm();
+    });
+});
+
+// ================= CHECK MANUAL EMAIL =================
+function checkEmailAndSetError(email) {
+  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.trim() })
   })
-  .catch(err => {
-    console.error(err);
-    emailError.textContent = "Error checking email";
-    emailAvailable = false;
-    validateForm();
-  });
+    .then(res => res.json())
+    .then(data => {
+      if (data.exists) {
+        setEmailInvalid("Email already exists");
+        emailAvailable = false;
+      } else {
+        setEmailValid();
+        emailAvailable = true;
+      }
+      validateForm();
+    })
+    .catch(err => {
+      console.error(err);
+      setEmailInvalid("Error checking email");
+      emailAvailable = false;
+      validateForm();
+    });
 }
 
-// Validate whole form
+// ================= FORM VALIDATION =================
 function validateForm() {
   const first = firstName.value.trim();
   const middle = middleName.value.trim();
   const last = lastName.value.trim();
-  const phoneValid = validatePhone();
-  const emailValid = emailAvailable;
-  const codeVal = validateCode();
 
-  submitBtn.disabled = !(first && middle && last && phoneValid && emailValid && codeVal);
+  // submit only enabled if names filled AND email is valid & available
+  submitBtn.disabled = !(first && middle && last && emailAvailable);
 }
 
-// Event listeners
-[firstName, middleName, lastName, phoneInput].forEach(el => el.addEventListener("input", validateForm));
-emailInput.addEventListener("blur", checkEmailExistence);
-phoneInput.addEventListener("input", validateForm);
-code.addEventListener("input", validateCode);
+// ================= NAME INPUT EVENTS =================
+[firstName, middleName, lastName].forEach(input => {
+  input.addEventListener("input", () => {
+    generateEmailSuggestions();
+  });
+});
 
-// Submit
-document.getElementById("onboardingForm").addEventListener("submit", function(e){
+// ================= FORM SUBMIT =================
+document.getElementById("onboardingForm")
+  .addEventListener("submit", function (e) {
+
     e.preventDefault();
 
     const data = {
-        firstName: firstName.value.trim(),
-        middleName: middleName.value.trim(),
-        lastName: lastName.value.trim(),
-        email: emailInput.value.trim(),
-        phone: phoneInput.value.trim(),
-        code: code.value.trim()
+      firstName: firstName.value.trim(),
+      middleName: middleName.value.trim(),
+      lastName: lastName.value.trim(),
+      email: emailInput.value.trim(),
+      code: code.value.trim()
     };
 
     submitBtn.disabled = true;
 
     fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/19cf3612f8bc49cbaba507eb24359176/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lLA9Cjv35YGngZt0m2Vfi3hgeP_p12a1h7zI-UkPMYU", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     })
     .then(() => {
-        // Always treat as success, no JSON parsing
-        alert("Form submitted successfully!");
-        this.reset();
-        document.querySelector(".choices").style.display = "none";
-        emailAvailable = false;
+      alert("Form submitted successfully!");
+      this.reset();
+      choicesContainer.style.display = "none";
+      emailAvailable = false;
     })
     .catch(err => {
-        console.error("Fetch error:", err);
-        alert("Form submitted successfully! (Check flow if needed)");
-        this.reset();
-        document.querySelector(".choices").style.display = "none";
-        emailAvailable = false;
+      console.error(err);
+      alert("Submission failed.");
     })
-    .finally(() => submitBtn.disabled = false);
+    .finally(() => {
+      submitBtn.disabled = false;
+    });
 });
