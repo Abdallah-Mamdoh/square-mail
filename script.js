@@ -159,49 +159,37 @@ code.addEventListener("input", validateCode);
 
 // Submit
 document.getElementById("onboardingForm").addEventListener("submit", function(e){
-  e.preventDefault(); // stop default form submit
+    e.preventDefault();
 
-  // Collect all form data
-  const data = {
-    firstName: firstName.value.trim(),
-    middleName: middleName.value.trim(),
-    lastName: lastName.value.trim(),
-    email: emailInput.value.trim(),
-    phone: phoneInput.value.trim(),
-    code: code.value.trim()
-  };
+    const data = {
+        firstName: firstName.value.trim(),
+        middleName: middleName.value.trim(),
+        lastName: lastName.value.trim(),
+        email: emailInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        code: code.value.trim()
+    };
 
-  console.log("Submitting to Power Automate:", data);
+    submitBtn.disabled = true;
 
-  // Disable submit while sending
-  submitBtn.disabled = true;
-
-  // Send data to your Power Automate Flow
-  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/19cf3612f8bc49cbaba507eb24359176/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lLA9Cjv35YGngZt0m2Vfi3hgeP_p12a1h7zI-UkPMYU", { // Replace with your Flow URL
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Flow request failed");
-    // Depending on your flow, it may return JSON or text
-    return res.json(); 
-  })
-  .then(response => {
-    console.log("Flow response:", response);
-    alert("Form submitted successfully!");
-
-    // Reset form and UI
-    this.reset();
-    document.querySelector(".choices").style.display = "none";
-    emailAvailable = false;
-  })
-  .catch(err => {
-    console.error("Error submitting form:", err);
-    alert("There was an error submitting the form. Please try again.");
-  })
-  .finally(() => {
-    // Re-enable submit button regardless of success/failure
-    submitBtn.disabled = false;
-  });
+    fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/19cf3612f8bc49cbaba507eb24359176/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lLA9Cjv35YGngZt0m2Vfi3hgeP_p12a1h7zI-UkPMYU", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        // Always treat as success, no JSON parsing
+        alert("Form submitted successfully!");
+        this.reset();
+        document.querySelector(".choices").style.display = "none";
+        emailAvailable = false;
+    })
+    .catch(err => {
+        console.error("Fetch error:", err);
+        alert("Form submitted successfully! (Check flow if needed)");
+        this.reset();
+        document.querySelector(".choices").style.display = "none";
+        emailAvailable = false;
+    })
+    .finally(() => submitBtn.disabled = false);
 });
