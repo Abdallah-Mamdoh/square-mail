@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Hire Form</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>New Hire Form</h2>
+  <form id="onboardingForm">
+    <input type="text" id="firstName" placeholder="First Name" required>
+    <input type="text" id="middleName" placeholder="Middle Name" required>
+    <input type="text" id="lastName" placeholder="Last Name" required>
+
+    <input type="email" id="email" placeholder="Email" required>
+    <div class="error" id="emailError"></div>
+
+    <div class="choices">
+      <button class="mailbutton" id="fl"></button>
+      <button class="mailbutton" id="fml"></button>
+      <button class="mailbutton" id="ldash"></button>
+
+    </div>
+
+    <input type="text" id="phone" placeholder="Phone (01XXXXXXXXX)" required>
+    <div class="error" id="phoneError"></div>
+
+    <button type="submit" id="submitBtn" disabled>Submit</button>
+  </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
