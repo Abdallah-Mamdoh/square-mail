@@ -1,3 +1,4 @@
+const code = document.getElementById("code");
 const firstName = document.getElementById("firstName");
 const middleName = document.getElementById("middleName");
 const lastName = document.getElementById("lastName");
@@ -7,21 +8,67 @@ const submitBtn = document.getElementById("submitBtn");
 
 const emailError = document.getElementById("emailError");
 const phoneError = document.getElementById("phoneError");
+const codeError = document.getElementById("codeError");
+
 
 const firstbutton = document.getElementById("fl"); 
 const secondbutton = document.getElementById("fml"); 
-const thirdbutton = document.getElementById("ldash"); 
 
-thirdbutton.addEventListener("click",function(){
-  console.log("third");
-  
-})
 
 let emailAvailable = false;
 
 emailInput.addEventListener("focus", function() {
-  emailInput.value = `${firstName.value}.${lastName.value}@square.com.eg`.toLowerCase()
+  document.querySelector(".choices").style.display = "flex"
+  if (firstName.value && lastName.value){
+    // default email without dash
+    firstbutton.textContent = `${firstName.value.toLowerCase()}.${lastName.value.toLowerCase()}@square.com.eg`;
+    
+    // middle initial email
+    secondbutton.textContent = middleName.value 
+      ? `${firstName.value.toLowerCase()}.${middleName.value.charAt(0).toLowerCase()}.${lastName.value.toLowerCase()}@square.com.eg`
+      : firstbutton.textContent;
+
+    // Add dash for "Al" or "El" names longer than 5 chars
+    const prefix = lastName.value.substring(0,2).toLowerCase();
+    if ((prefix === "al" || prefix === "el") && lastName.value.length > 5){
+      const rest = lastName.value.substring(2).toLowerCase();
+      firstbutton.textContent = `${firstName.value.toLowerCase()}.${prefix}-${rest}@square.com.eg`;
+      if(middleName.value){
+        secondbutton.textContent = `${firstName.value.toLowerCase()}.${middleName.value.charAt(0).toLowerCase()}.${prefix}-${rest}@square.com.eg`;
+      } else {
+        secondbutton.textContent = firstbutton.textContent;
+      }
+    }
+
+  } else {
+    emailError.textContent = "Please fill your full name first";
+    emailInput.classList.add("invalid");
+    emailInput.classList.remove("valid");
+  }
 })
+
+firstbutton.addEventListener("click", function() {
+  emailInput.value = this.textContent
+})
+
+secondbutton.addEventListener("click", function() {
+  emailInput.value = this.textContent
+})
+// Validate Employee Code
+function validateCode() {
+  const codeVal = code.value.trim();
+  if (codeVal.length != 9) {
+    codeError.textContent = "Enter a Valid Employee Code";
+    code.classList.add("invalid");
+    code.classList.remove("valid");
+    return false;
+  } else {
+    codeError.textContent = "";
+    code.classList.add("valid");
+    code.classList.remove("invalid");
+    return true;
+  }
+}
 
 // Validate email format
 function validateEmailFormat() {
@@ -99,14 +146,16 @@ function validateForm() {
   const last = lastName.value.trim();
   const phoneValid = validatePhone();
   const emailValid = emailAvailable;
+  const codeVal = validateCode();
 
-  submitBtn.disabled = !(first && middle && last && phoneValid && emailValid);
+  submitBtn.disabled = !(first && middle && last && phoneValid && emailValid && codeVal);
 }
 
 // Event listeners
 [firstName, middleName, lastName, phoneInput].forEach(el => el.addEventListener("input", validateForm));
 emailInput.addEventListener("blur", checkEmailExistence);
 phoneInput.addEventListener("input", validateForm);
+code.addEventListener("input", validateCode);
 
 // Submit
 document.getElementById("onboardingForm").addEventListener("submit", function(e){
@@ -116,11 +165,13 @@ document.getElementById("onboardingForm").addEventListener("submit", function(e)
     middleName: middleName.value.trim(),
     lastName: lastName.value.trim(),
     email: emailInput.value.trim(),
-    phone: phoneInput.value.trim()
+    phone: phoneInput.value.trim(),
+    code: code.value.trim()
   };
   console.log("Form submitted:", data);
   alert("Form submitted successfully!");
   this.reset();
+  document.querySelector(".choices").style.display = "none"
   submitBtn.disabled = true;
   emailAvailable = false;
 });

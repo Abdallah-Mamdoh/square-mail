@@ -60,11 +60,12 @@ button:disabled {
 }
 
 .choices {
-  display: flex;
-  flex-direction: row;
+  display: none;
+  flex-direction: column;
   gap: 5px;
   margin: auto;
-  padding: 10px;
+  /* padding: 10px 0px; */
+  padding-bottom: 10px;
   width: 100%;
   justify-content: space-between;
   text-align: center;
@@ -74,6 +75,9 @@ button:disabled {
   border: 1px solid green;
   background-color: transparent;
   color: black;
+  font-size: 12px;
+  padding: 5px;
+  width: fit-content;
 
 }
 .mailbutton:hover{

@@ -9,8 +9,12 @@
 <body>
 
 <div class="container">
-  <h2>New Hire Form</h2>
+  <h2>Square Mail Registeration</h2>
   <form id="onboardingForm">
+
+    <input type="text" id="code" placeholder="Employee Code" required>
+    <div class="error" id="codeError"></div>
+
     <input type="text" id="firstName" placeholder="First Name" required>
     <input type="text" id="middleName" placeholder="Middle Name" required>
     <input type="text" id="lastName" placeholder="Last Name" required>
@@ -19,16 +23,15 @@
     <div class="error" id="emailError"></div>
 
     <div class="choices">
-      <button class="mailbutton" id="fl"></button>
-      <button class="mailbutton" id="fml"></button>
-      <button class="mailbutton" id="ldash"></button>
-
+      <button type="button" class="mailbutton" id="fl"></button>
+      <button type="button" class="mailbutton" id="fml"></button>
     </div>
 
     <input type="text" id="phone" placeholder="Phone (01XXXXXXXXX)" required>
     <div class="error" id="phoneError"></div>
 
-    <button type="submit" id="submitBtn" disabled>Submit</button>
+
+    <button type="submit" id="submitBtn" disabled style="width: 100%; margin: 0 auto;">Submit</button>
   </form>
 </div>
 
