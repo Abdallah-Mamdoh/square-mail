@@ -127,10 +127,12 @@ color: grey;
   align-items: start;
 }
 
-.loadingicon{
+#loadingicon{
   height: 30px;
   padding-top: 5px;
   margin-left: 10px;
+}
+.hidden{
   display: none;
 }
 

@@ -179,12 +179,12 @@ emailInput.addEventListener("input", () => {
   // Clear any previous timer
   clearTimeout(debounceTimer);
 
-  document.querySelector(".loadingicon").style.display = "inline";
+  document.querySelector("#loadingicon").classList.remove("hidden");
   // Validate format immediately
   if (!validateEmailFormat()) {
     emailAvailable = false;
     validateForm();
-    document.querySelector(".loadingicon").style.display = "none";
+    document.querySelector("#loadingicon").classList.add("hidden");
     return;
   }
 
@@ -207,7 +207,7 @@ emailInput.addEventListener("input", () => {
         setEmailValid();
         emailAvailable = true;
       }
-      document.querySelector(".loadingicon").style.display = "none";
+      document.querySelector("#loadingicon").classList.add("hidden");
 
       validateForm();
     })
@@ -215,8 +215,8 @@ emailInput.addEventListener("input", () => {
       console.error(err);
       if (emailVal !== lastEmailChecked) return;
       setEmailInvalid("Error checking email");
-      
-      document.querySelector(".loadingicon").style.display = "none";
+
+      document.querySelector("#loadingicon").classList.add("hidden");
 
     });
   }, 1000); // wait 2 seconds
