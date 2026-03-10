@@ -107,30 +107,45 @@ function validateEmailFormat() {
   }
 
   if (!emailVal.endsWith("@square.com.eg")) {
-    setEmailInvalid("Email must end with @square.com.eg");
+    // setEmailInvalid("Email must end with @square.com.eg");
+    document.querySelector("#rule1").style.color = "red"
     return false;
+  }else{
+    document.querySelector("#rule1").style.color = "green"
   }
 
   const username = emailVal.split("@")[0];
 
   if (!username.includes(first.toLowerCase()) || !username.includes(last.toLowerCase())) {
-    setEmailInvalid("Email must contain first and last name in lower case");
+    // setEmailInvalid("Email must contain first and last name in lower case");
+    document.querySelector("#rule2").style.color = "red"
     return false;
+  }else{
+    document.querySelector("#rule2").style.color = "green"
   }
 
   if (/\d/.test(username)) {
-    setEmailInvalid("Numbers are not allowed");
+    // setEmailInvalid("Numbers are not allowed");
+    document.querySelector("#rule4").style.color = "red"
     return false;
+  }else{
+    document.querySelector("#rule4").style.color = "green"
   }
 
-  if (!/^[a-z.-]+$/.test(username)) {
-    setEmailInvalid("Only lowercase letters, dot (.) and dash (-) allowed");
+  if (!/^[a-zA-Z.-]+$/.test(username)) {
+    // setEmailInvalid("Only lowercase letters, dot (.) and dash (-) allowed");
+    document.querySelector("#rule5").style.color = "red"
     return false;
+  }else{
+    document.querySelector("#rule5").style.color = "green"
   }
 
   if (emailVal !== emailVal.toLowerCase()) {
-    setEmailInvalid("Email must be lowercase");
+    // setEmailInvalid("Email must be lowercase");
+    document.querySelector("#rule3").style.color = "red"
     return false;
+  }else{
+    document.querySelector("#rule3").style.color = "green"
   }
 
   setEmailValid();
@@ -266,3 +281,15 @@ document.getElementById("onboardingForm")
       submitBtn.disabled = false;
     });
 });
+
+// Fill Candidate ID Automatically
+// Get the "id" parameter from URL
+const params = new URLSearchParams(window.location.search);
+const candidateID = params.get("id");
+
+// Fill the input field automatically
+const codeInput = document.getElementById("code");
+if(candidateID) {
+    codeInput.value = candidateID;
+    codeInput.readOnly = true; // prevent editing
+}
