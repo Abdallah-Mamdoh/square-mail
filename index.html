@@ -13,14 +13,18 @@
   <h2>Square Mail Registeration</h2>
   <form id="onboardingForm">
 
-    <input type="text" id="code" placeholder="Candidate ID" required>
+    <input type="text" id="code" placeholder="Candidate ID" required readonly style="background-color: rgb(204, 203, 203); color: grey;">
     <div class="error" id="codeError"></div>
 
     <input type="text" id="firstName" placeholder="First Name" required>
     <input type="text" id="middleName" placeholder="Middle Name" required>
     <input type="text" id="lastName" placeholder="Last Name" required>
 
-    <input type="email" id="email" placeholder="Email" required>
+    <div class="mailchecking">
+      <input type="email" id="email" placeholder="Email" required>
+      <img class="loadingicon" src="icons8-loading-circle.gif" alt="loading">
+
+    </div>
     <div class="error" id="emailError"></div>
 
     <div class="choices">
@@ -46,7 +50,7 @@
     <div class="error" id="phoneError"></div> -->
 
 
-    <button type="submit" id="submitBtn" disabled style="margin-left: 10px;">Submit</button>
+    <button type="submit" id="submitBtn" disabled>Submit</button>
   </form>
 </div>
 

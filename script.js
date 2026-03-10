@@ -168,24 +168,38 @@ function setEmailValid() {
 }
 
 // ================= EMAIL INPUT EVENTS =================
+let debounceTimer; // Add this near lastEmailChecked
+
 emailInput.addEventListener("input", () => {
   const emailVal = emailInput.value.trim();
+  
+  // Track the latest email typed
+  lastEmailChecked = emailVal;
 
-  // First, validate format
+  // Clear any previous timer
+  clearTimeout(debounceTimer);
+
+  document.querySelector(".loadingicon").style.display = "inline";
+  // Validate format immediately
   if (!validateEmailFormat()) {
     emailAvailable = false;
     validateForm();
+    document.querySelector(".loadingicon").style.display = "none";
     return;
   }
 
-  // Then, check existence
-  fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: emailVal })
-  })
+  // Debounce the async check by 2 seconds
+  debounceTimer = setTimeout(() => {
+    fetch("https://default604566729c2a44a3b67843fd61ec46.20.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/02e1672fd7f44819b146f45d855b965c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_oPRW0VzcxGiJ7b41SQRPBRBR43scwX7Rsm4eqphPu8", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailVal })
+    })
     .then(res => res.json())
     .then(data => {
+      // Ignore old responses
+      if (emailVal !== lastEmailChecked) return;
+
       if (data.exists) {
         setEmailInvalid("Email already exists");
         emailAvailable = false;
@@ -193,14 +207,19 @@ emailInput.addEventListener("input", () => {
         setEmailValid();
         emailAvailable = true;
       }
-      validateForm(); // Disable/enable submit button
+      document.querySelector(".loadingicon").style.display = "none";
+
+      validateForm();
     })
     .catch(err => {
       console.error(err);
+      if (emailVal !== lastEmailChecked) return;
       setEmailInvalid("Error checking email");
-      emailAvailable = false;
-      validateForm();
+      
+      document.querySelector(".loadingicon").style.display = "none";
+
     });
+  }, 1000); // wait 2 seconds
 });
 
 // ================= CHECK MANUAL EMAIL =================

@@ -119,3 +119,21 @@ margin:5px 0;
 font-size:10px;
 color: grey;
 }
+
+.mailchecking{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.loadingicon{
+  height: 30px;
+  padding-top: 5px;
+  margin-left: 10px;
+  display: none;
+}
+
+input{
+  width: 95%;
+}
